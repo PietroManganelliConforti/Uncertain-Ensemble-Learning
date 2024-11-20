@@ -5,7 +5,7 @@ import torchvision
 import torchvision.transforms as transforms
 import torchvision.models as models
 from main import test
-from loaders import get_train_test_loader, get_cifar100_dataloaders
+from loaders import get_train_test_loader
 import os
 from models import model_dict
 
@@ -64,7 +64,7 @@ def test_with_adversarial(net, testloader, device, epsilon, criterion, save_firs
             print("Saving the first adversarial image")
 
             save_path = "work/project/saved_fig/adv_image" + str(epsilon) + ".png"
-            if not os.save_path.exists(save_path):
+            if not os.path.exists(os.path.dirname(save_path)):
                 os.makedirs(save_path)
 
             combined_images = torch.cat((images, adv_images), dim=0)  # Combina immagini originali e avversariali
@@ -106,12 +106,12 @@ if __name__ == "__main__":
     batch_size = 128
     num_workers = 8
 
-    trainloader, testloader, n_cls = get_train_test_loader(dataset_name, 
+    _, testloader, n_cls = get_train_test_loader(dataset_name, 
                                                            data_folder=dataset_path, 
                                                            batch_size=batch_size, 
                                                            num_workers=num_workers)
 
-    print(dataset_name," - Trainloader lenght: ", len(trainloader), "Testloader lenght: ", len(testloader))
+    print(dataset_name," - Testloader lenght: ", len(testloader))
 
 
     # import net
@@ -119,14 +119,12 @@ if __name__ == "__main__":
     model_name = "resnet18"
     net = model_dict["resnet18"](num_classes=n_cls).to(device)
 
-    teacher_model_path = 'work/project/save/'+dataset_name+'/'+model_name+'/state_dict.pth'
+    model_path = 'work/project/save/'+dataset_name+'/'+model_name+'/state_dict.pth'
 
-    net.load_state_dict(torch.load(teacher_model_path, map_location=device)['model'])
-    net.eval()
+    net.load_state_dict(torch.load(model_path, map_location=device))
+    net.eval().to(device)
 
-    _ , testloader = get_cifar100_dataloaders()
-
-    net.to(device)
+    print("Loaded model from ", model_path)
 
     criterion = nn.CrossEntropyLoss()
 
