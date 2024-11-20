@@ -2,11 +2,17 @@
 
 ### HOW TO RUN:
 
+To clone the repo:
 ```
 git clone https://github.com/PietroManganelliConforti/Uncertain-Ensemble-Learning.git
 ```
+To train the models:
 ```
 docker run -v $PWD/:/work/project/ -it  --gpus all --ipc host piemmec/xai4kd_2:2  python3 work/project/main.py
+```
+To launch the FGSM attack:
+```
+docker run -v $PWD/:/work/project/ -it  --gpus all --ipc host piemmec/xai4kd_2:2  python3 work/project/fgsm.py
 ```
 
 ### Useful links:
