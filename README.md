@@ -1,6 +1,6 @@
 # Uncertain-Ensemble-Learning
 
-### TO RUN:
+### HOW TO RUN:
 
 ```
 git clone https://github.com/PietroManganelliConforti/Uncertain-Ensemble-Learning-.git
