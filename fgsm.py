@@ -63,13 +63,15 @@ def test_with_adversarial(net, testloader, device, epsilon, criterion, save_firs
             # Salva la prima immagine avversariale
             print("Saving the first adversarial image")
 
-            save_path = "work/project/saved_fig/adv_image" + str(epsilon) + ".png"
+            save_path = "work/project/saved_fig/"
+            image_name = "adv_image_eps_" + str(epsilon) + ".png"
+
             if not os.path.exists(os.path.dirname(save_path)):
                 os.makedirs(save_path)
 
             combined_images = torch.cat((images, adv_images), dim=0)  # Combina immagini originali e avversariali
             grid = torchvision.utils.make_grid(combined_images, nrow=testloader.batch_size)
-            torchvision.utils.save_image(grid.to('cpu'), save_path)
+            torchvision.utils.save_image(grid.to('cpu'), os.path.join(save_path, image_name))
             saved_flag = True
         
         # Ottieni le predizioni
