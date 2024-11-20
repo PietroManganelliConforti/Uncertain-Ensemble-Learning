@@ -3,7 +3,7 @@
 ### HOW TO RUN:
 
 ```
-git clone https://github.com/PietroManganelliConforti/Uncertain-Ensemble-Learning-.git
+git clone https://github.com/PietroManganelliConforti/Uncertain-Ensemble-Learning.git
 ```
 ```
 docker run -v $PWD/:/work/project/ -it  --gpus all --ipc host piemmec/xai4kd_2:2  python3 work/project/main.py
