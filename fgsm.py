@@ -6,7 +6,7 @@ import torchvision.transforms as transforms
 import torchvision.models as models
 from main import test
 from loaders import get_train_test_loader, get_cifar100_dataloaders
-
+import os
 from models import model_dict
 
 def fgsm_attack(image, label, model, epsilon, criterion):
@@ -62,9 +62,14 @@ def test_with_adversarial(net, testloader, device, epsilon, criterion, save_firs
         if save_first and not saved_flag:
             # Salva la prima immagine avversariale
             print("Saving the first adversarial image")
+
+            save_path = "work/project/saved_fig/adv_image" + str(epsilon) + ".png"
+            if not os.save_path.exists(save_path):
+                os.makedirs(save_path)
+
             combined_images = torch.cat((images, adv_images), dim=0)  # Combina immagini originali e avversariali
             grid = torchvision.utils.make_grid(combined_images, nrow=testloader.batch_size)
-            torchvision.utils.save_image(grid.to('cpu'), "work/project/saved_fig/combined_image" + str(epsilon) + ".png")
+            torchvision.utils.save_image(grid.to('cpu'), save_path)
             saved_flag = True
         
         # Ottieni le predizioni
@@ -92,38 +97,55 @@ def test_with_adversarial(net, testloader, device, epsilon, criterion, save_firs
 
 if __name__ == "__main__":
 
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    #setup cuda
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") 
     print("Device:", device)
 
+    dataset_name = "cifar10"
+    dataset_path = './work/project/data'
+    batch_size = 128
+    num_workers = 8
 
-    teacher = model_dict["resnet56"](num_classes=100)
-    teacher_model_path = 'work/project/SimKD/save/teachers/models/resnet56_vanilla_cifar100_trial_0/resnet56_best.pth'
+    trainloader, testloader, n_cls = get_train_test_loader(dataset_name, 
+                                                           data_folder=dataset_path, 
+                                                           batch_size=batch_size, 
+                                                           num_workers=num_workers)
 
-    teacher.load_state_dict(torch.load(teacher_model_path, map_location=device)['model'])
-    teacher.eval()
+    print(dataset_name," - Trainloader lenght: ", len(trainloader), "Testloader lenght: ", len(testloader))
+
+
+    # import net
+
+    model_name = "resnet18"
+    net = model_dict["resnet18"](num_classes=n_cls).to(device)
+
+    teacher_model_path = 'work/project/save/'+dataset_name+'/'+model_name+'/state_dict.pth'
+
+    net.load_state_dict(torch.load(teacher_model_path, map_location=device)['model'])
+    net.eval()
 
     _ , testloader = get_cifar100_dataloaders()
 
-    teacher.to(device)
+    net.to(device)
 
     criterion = nn.CrossEntropyLoss()
 
     # Esegui il test normale
     print("Testing with normal examples")
-    test(teacher, testloader, criterion, device)
+    test(net, testloader, criterion, device)
 
     # Esegui l'attacco FGSM
     epsilon = 0.1  # Modifica questo valore per aumentare o diminuire la forza dell'attacco
     print("Testing with adversarial examples, epsilon=", epsilon)
-    test_with_adversarial(teacher, testloader, device, epsilon, criterion, save_first=True)
+    test_with_adversarial(net, testloader, device, epsilon, criterion, save_first=True)
 
     epsilon = 0.3  # Modifica questo valore per aumentare o diminuire la forza dell'attacco
     print("Testing with adversarial examples, epsilon=", epsilon)
-    test_with_adversarial(teacher, testloader, device, epsilon, criterion)
+    test_with_adversarial(net, testloader, device, epsilon, criterion)
 
     epsilon = 0.5  # Modifica questo valore per aumentare o diminuire la forza dell'attacco
     print("Testing with adversarial examples, epsilon=", epsilon)
-    test_with_adversarial(teacher, testloader, device, epsilon, criterion)
+    test_with_adversarial(net, testloader, device, epsilon, criterion)
 
 
 

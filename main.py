@@ -88,11 +88,10 @@ if __name__ == "__main__":
 
     print(dataset_name," - Trainloader lenght: ", len(trainloader), "Testloader lenght: ", len(testloader))
 
-
     # import net
 
     model_name = "resnet18"
-    net = model_dict["resnet18"](num_classes=n_cls).to(device)
+    net = model_dict[model_name](num_classes=n_cls).to(device)
 
     assert net is not None, "Model not found"
 
@@ -108,15 +107,14 @@ if __name__ == "__main__":
 
     test(net, testloader, criterion, device)
 
+    #join paths
 
-    # Save the model
-
-    save_path = 'work/project/save/'+model_name
+    save_path = os.path.join('work/project/save/',dataset_name,model_name)
 
     if not os.path.exists(save_path):
         os.makedirs(save_path)
 
-    torch.save(net.state_dict(), save_path+'/'+model_name+'_state_dict.pth')
+    torch.save(net.state_dict(), save_path+'/state_dict.pth')
 
 
 
