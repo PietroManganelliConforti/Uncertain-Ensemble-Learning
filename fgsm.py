@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
     dataset_name = "cifar10"
     dataset_path = './work/project/data'
-    batch_size = 128
+    batch_size = 32
     num_workers = 8
 
     _, testloader, n_cls = get_train_test_loader(dataset_name, 
