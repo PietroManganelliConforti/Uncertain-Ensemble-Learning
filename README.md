@@ -8,11 +8,11 @@ git clone https://github.com/PietroManganelliConforti/Uncertain-Ensemble-Learnin
 ```
 To train the models:
 ```
-docker run -v $PWD/:/work/project/ -it  --gpus all --ipc host piemmec/xai4kd_2:2  python3 work/project/main.py
+docker run -v $PWD/:/work/project/ -it  --gpus all --ipc host piemmec/adv_unc  python3 work/project/main.py
 ```
 To launch the FGSM attack:
 ```
-docker run -v $PWD/:/work/project/ -it  --gpus all --ipc host piemmec/xai4kd_2:2  python3 work/project/fgsm.py
+docker run -v $PWD/:/work/project/ -it  --gpus all --ipc host piemmec/adv_unc  python3 work/project/fgsm.py
 ```
 
 ### Useful links:
