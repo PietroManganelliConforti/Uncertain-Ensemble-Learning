@@ -145,7 +145,7 @@ if __name__ == "__main__":
 
     epsilon = 0.5  # Modifica questo valore per aumentare o diminuire la forza dell'attacco
     print("Testing with adversarial examples, epsilon=", epsilon)
-    test_with_adversarial(net, testloader, device, epsilon, criterion)
+    test_with_adversarial(net, testloader, device, epsilon, criterion, save_first=True)
 
 
 
