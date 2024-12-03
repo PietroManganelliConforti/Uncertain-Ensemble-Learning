@@ -194,16 +194,14 @@ def resnet14(**kwargs):
 
 def resnet18(**kwargs):
     print("resnet18")
-    return models.resnet18(pretrained=False)
-    # return ResNet(18, [16, 16, 32, 64], 'basicblock', **kwargs)
+    return ResNet(18, [16, 16, 32, 64], 'basicblock', **kwargs)
 
 def resnet20(**kwargs):
     return ResNet(20, [16, 16, 32, 64], 'basicblock', **kwargs)
 
 def resnet32(**kwargs):
     print("resnet32")
-    return models.resnet34(pretrained=False)
-    #return ResNet(32, [16, 16, 32, 64], 'basicblock', **kwargs)
+    return ResNet(32, [16, 16, 32, 64], 'basicblock', **kwargs)
 
 # wrn_40_1 (We use the wrn notation to be consistent with the previous work)
 def resnet38(**kwargs):

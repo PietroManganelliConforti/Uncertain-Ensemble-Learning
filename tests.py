@@ -4,7 +4,7 @@ import torch.optim as optim
 import torchvision.transforms as transforms
 import torchvision.models as models
 import torchvision
-from main import test
+from train import test
 from loaders import get_train_test_loader
 import os
 from models import model_dict
@@ -28,7 +28,10 @@ def save_images(adv_images, orig_images, save_image_path):
 
 
 
-def test_with_adversarial(net, testloader, device, epsilon, criterion, save_path=None):
+def test_with_fgsm(net, testloader, device, alpha, criterion, save_path=None, logs_file=None):
+
+    print("Testing with adversarial examples, alpha=", alpha)
+    
     correct_top1 = 0
     correct_top5 = 0
     total = 0
@@ -40,13 +43,13 @@ def test_with_adversarial(net, testloader, device, epsilon, criterion, save_path
         images, labels = images.to(device), labels.to(device)
         
         # Applica l'attacco FGSM
-        adv_images = fgsm_attack(images, labels, net, epsilon, criterion)
+        adv_images = fgsm_attack(images, labels, net, alpha, criterion)
 
         if save_path is not None:
 
             if not os.path.exists(os.path.dirname(save_path)): os.makedirs(save_path)
 
-            save_image_path = os.path.join(save_path, "adv_fgsm_image_eps_" + str(epsilon) + ".png")
+            save_image_path = os.path.join(save_path, "adv_fgsm_image_alpha_" + str(alpha) + ".png")
             
             save_images(adv_images, images, save_image_path)
 
@@ -71,11 +74,18 @@ def test_with_adversarial(net, testloader, device, epsilon, criterion, save_path
     top5_accuracy = 100 * correct_top5 / total
     avg_loss = adv_loss / len(testloader)
 
-    print(f'Accuracy of the network on adversarial images (epsilon={epsilon}): \n Top-1 = {top1_accuracy}%, Top-5 = {top5_accuracy}%, Loss: {avg_loss}')
+    print(f'Accuracy of the network on adversarial images (alpha={alpha}): \n Top-1 = {top1_accuracy}%, Top-5 = {top5_accuracy}%, Loss: {avg_loss}')
+
+    if logs_file is not None:
+        logs_file.write(f'FGSM (alpha={alpha}): Top-1 = {top1_accuracy}%, Top-5 = {top5_accuracy}%, Loss: {avg_loss}\n')
+        logs_file.flush()
 
 
-def test_with_pgd(net, testloader, device, epsilon, alpha, num_iter, criterion, save_path=None):
-                  
+
+def test_with_pgd(net, testloader, device, epsilon, alpha, num_iter, criterion, save_path=None, logs_file=None):
+
+    print("Testing with adversarial examples (PGD), epsilon=", epsilon, "alpha=", alpha, "num_iter=", num_iter)
+
     correct_top1 = 0
     correct_top5 = 0
     total = 0
@@ -119,6 +129,9 @@ def test_with_pgd(net, testloader, device, epsilon, alpha, num_iter, criterion, 
 
     print(f'Accuracy of the network on adversarial images (PGD, epsilon={epsilon}, alpha={alpha}, num_iter={num_iter}):\n Top-1 = {top1_accuracy}%, Top-5 = {top5_accuracy}%, Loss: {avg_loss}')
 
+    if logs_file is not None:
+        logs_file.write(f'PGD (epsilon={epsilon}, alpha={alpha}, num_iter={num_iter}): Top-1 = {top1_accuracy}%, Top-5 = {top5_accuracy}%, Loss: {avg_loss} \n')
+        logs_file.flush()
 
 
 if __name__ == "__main__":
@@ -161,45 +174,28 @@ if __name__ == "__main__":
 
     save_path= "work/project/adv_results/" + dataset_name + "/" + model_name + "/"
 
-    # Esegui l'attacco PGD
-    epsilon = 0.1  
-    alpha = 0.01  
-    num_iter = 10  
-    print("Testing with adversarial examples (PGD), epsilon=", epsilon, "alpha=", alpha, "num_iter=", num_iter)
-    test_with_pgd(net, testloader, device, epsilon, alpha, num_iter, criterion, save_path=save_path)
 
-    # Esegui l'attacco PGD
-    epsilon = 0.1  
-    alpha = 0.3  
-    num_iter = 10  
-    print("Testing with adversarial examples (PGD), epsilon=", epsilon, "alpha=", alpha, "num_iter=", num_iter)
-    test_with_pgd(net, testloader, device, epsilon, alpha, num_iter, criterion, save_path=save_path)
+    logs_file = open(os.path.join(save_path, "logs.txt"), "w")
 
-    # Esegui l'attacco PGD
-    epsilon = 0.1  
-    alpha = 0.2  
-    num_iter = 100 
-    print("Testing with adversarial examples (PGD), epsilon=", epsilon, "alpha=", alpha, "num_iter=", num_iter)
-    test_with_pgd(net, testloader, device, epsilon, alpha, num_iter, criterion, save_path=save_path)
 
     # Esegui l'attacco FGSM
-    epsilon = 0.1  
-    print("Testing with adversarial examples, epsilon=", epsilon)
-    test_with_adversarial(net, testloader, device, epsilon, criterion, save_path=save_path)
+    alpha = 0.1  
+    test_with_fgsm(net, testloader, device, alpha, criterion, save_path=save_path, logs_file=logs_file)
+    
 
-    epsilon = 0.3  
-    print("Testing with adversarial examples, epsilon=", epsilon)
-    test_with_adversarial(net, testloader, device, epsilon, criterion)
+    # Esegui l'attacco PGD
+    epsilon = 0.1  
+    alpha = 0.1  
+    num_iter = 1
+    test_with_pgd(net, testloader, device, epsilon, alpha, num_iter, criterion, save_path=save_path, logs_file=logs_file)
+
+    epsilon = 0.3 
+    alpha = 0.3  
+    num_iter = 1
+    test_with_pgd(net, testloader, device, epsilon, alpha, num_iter, criterion, save_path=save_path, logs_file=logs_file)
 
     epsilon = 0.5  
-    print("Testing with adversarial examples, epsilon=", epsilon)
-    test_with_adversarial(net, testloader, device, epsilon, criterion, save_path=save_path)
-
-
-
-
-    # epsilon = 0.01  
-    # alpha = 0.01  
-    # num_iter = 50  
-    # print("Testing with adversarial examples (PGD), epsilon=", epsilon, "alpha=", alpha, "num_iter=", num_iter)
+    alpha = 0.5  
+    num_iter = 1
+    test_with_pgd(net, testloader, device, epsilon, alpha, num_iter, criterion, save_path=save_path, logs_file=logs_file)
 
