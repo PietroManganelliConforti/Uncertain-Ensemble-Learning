@@ -28,6 +28,7 @@ def train(net, trainloader, valloader, criterion, optimizer, device, epochs=20, 
         correct_top1_val = 0
         running_loss_val = 0.0
 
+        net.train()
         for inputs, labels in trainloader:
             inputs, labels = inputs.to(device), labels.to(device)
             optimizer.zero_grad()
@@ -38,7 +39,9 @@ def train(net, trainloader, valloader, criterion, optimizer, device, epochs=20, 
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
+            
 
+        net.eval()
         for inputs, labels in valloader:
         
             inputs, labels = inputs.to(device), labels.to(device)
@@ -163,11 +166,6 @@ if __name__ == "__main__":
     epochs = args.epochs
     pretrained_flag = args.pretrained
 
-    #save path for model and logs
-    save_path = os.path.join(save_path_root, dataset_name, model_name+"_"+str(lr)+"_"+str(epochs))
-    if pretrained_flag:
-        save_path = save_path + "_pretrained"
-    os.makedirs(save_path, exist_ok=True)
 
     try:
         trainloader, testloader, n_cls = get_train_and_test_loader(dataset_name, 
@@ -193,6 +191,12 @@ if __name__ == "__main__":
     # Training phase
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(net.parameters(), lr=lr)
+
+    #save path for model and logs
+    save_path = os.path.join(save_path_root, dataset_name, model_name+"_"+str(lr)+"_"+str(epochs))
+    if pretrained_flag:
+        save_path = save_path + "_pretrained"
+    os.makedirs(save_path, exist_ok=True)
 
     logger.info("Starting training...")
 

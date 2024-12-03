@@ -14,6 +14,11 @@ To launch the FGSM attack:
 ```
 docker run -v $PWD/:/work/project/ -it  --gpus all --ipc host piemmec/adv_unc  python3 work/project/fgsm.py
 ```
+To launch the training script from docker, in detached mode:
+```
+docker run -v $PWD/:/work/project/ -it  --gpus all --ipc host piemmec/adv_unc  python3 work/project/fgsm.py
+```
+
 
 ### Useful links:
 

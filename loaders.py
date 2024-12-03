@@ -72,10 +72,11 @@ def get_train_and_test_loader(dataset_name: str, data_folder: str = './data', ba
 
     elif dataset_name in ["imagenette"]:
         #check if is already downloaded
-        download_flag = False
 
-        if not os.path.exists(data_folder+'/imagenette'):
-            print("Downloading dataset imagenette in path ", data_folder)
+        download_flag = False   
+
+        if not os.path.exists(data_folder):
+            print("Downloading dataset imagenette in path ", data_folder, "...",data_folder+'/imagenette/imagenette2')
             download_flag = True
 
         train_set = dataset_class(root=data_folder, split='train', download=download_flag, transform=train_transform)
