@@ -16,9 +16,8 @@ docker run -v $PWD/:/work/project/ -it  --gpus all --ipc host piemmec/adv_unc  p
 ```
 To launch the training script from docker, in detached mode:
 ```
-docker run -v $PWD/:/work/project/ -it  --gpus all --ipc host piemmec/adv_unc  python3 work/project/fgsm.py
+docker run -v $PWD/:/work/project/ -d --gpus all --ipc host piemmec/adv_unc sh work/project/script.sh
 ```
-
 
 ### Useful links:
 

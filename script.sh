@@ -1,5 +1,3 @@
-
-
 python3 /work/project/train.py --dataset imagenette --model resnet18 --epochs 200 --lr 0.0001 
 python3 /work/project/train.py --dataset imagenette --model resnet34 --epochs 200 --lr 0.0001
 python3 /work/project/train.py --dataset imagenette --model resnet50 --epochs 200 --lr 0.0001
