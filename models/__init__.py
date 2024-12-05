@@ -1,52 +1,20 @@
-# from .resnet import resnet18, resnet56, resnet38, resnet110, resnet116, resnet14x2, resnet38x2, resnet110x2
-# from .resnet import resnet8x4, resnet14x4, resnet32x4, resnet38x4
-# from .vgg import vgg8_bn, vgg13_bn
-# from .mobilenetv2 import mobile_half, mobile_half_double
-# from .ShuffleNetv1 import ShuffleV1
-# from .ShuffleNetv2 import ShuffleV2, ShuffleV2_1_5
+from .vanilla_torch_models import resnet18v, resnet34v, resnet50v, ViT_B_16, ViT_L_16
+from .vanilla_torch_models import efficientnet_b0v, efficientnet_b7v, mobilenet_v2v, densenet121v, regnet_y_400mfv
+                                
 
-# from .resnet_imagenet import resnet18, resnet34, resnet50, wide_resnet50_2, resnext50_32x4d
-# from .resnet_imagenet import wide_resnet10_2, wide_resnet18_2, wide_resnet34_2
-# from .mobilenetv2_imagenet import mobilenet_v2
-# from .shuffleNetv2_imagenet import shufflenet_v2_x1_0
-
-from .vanilla_torch_models import resnet18v, resnet34v, resnet50v
 
 model_dict = {
-    # 'resnet18': resnet18,
-    # 'resnet34': resnet34,
-    # 'resnet38': resnet38,
-    # 'resnet56' : resnet56,
-    # 'resnet110': resnet110,
-    # 'resnet116': resnet116,
-    # 'resnet14x2': resnet14x2,
-    # 'resnet38x2': resnet38x2,
-    # 'resnet110x2': resnet110x2,
-    # 'resnet8x4': resnet8x4,
-    # 'resnet14x4': resnet14x4,
-    # 'resnet32x4': resnet32x4,
-    # 'resnet38x4': resnet38x4,
-    # 'vgg8': vgg8_bn,
-    # 'vgg13': vgg13_bn,
-    # 'MobileNetV2': mobile_half,
-    # 'MobileNetV2_1_0': mobile_half_double,
-    # 'ShuffleV1': ShuffleV1,
-    # 'ShuffleV2': ShuffleV2,
-    # 'ShuffleV2_1_5': ShuffleV2_1_5,
-    
-    # 'ResNet18': resnet18,
-    # 'ResNet34': resnet34,
-    # 'ResNet50': resnet50,
-    # 'resnext50_32x4d': resnext50_32x4d,
-    # 'ResNet10x2': wide_resnet10_2,
-    # 'ResNet18x2': wide_resnet18_2,
-    # 'ResNet34x2': wide_resnet34_2,
-    # 'wrn_50_2': wide_resnet50_2,
-    
-    # 'MobileNetV2_Imagenet': mobilenet_v2,
-    # 'ShuffleV2_Imagenet': shufflenet_v2_x1_0,
 
     'resnet18': resnet18v,
     'resnet34': resnet34v,
-    'resnet50': resnet50v
+    'resnet50': resnet50v,
+    'vit_b16': ViT_B_16,
+    'vit_l16': ViT_L_16,
+    'efficientnet_b0': efficientnet_b0v,
+    'efficientnet_b7': efficientnet_b7v,
+    'mobilenet_v2': mobilenet_v2v,
+    'densenet121': densenet121v,
+    'regnet_y_400mf': regnet_y_400mfv
     }
+
+
