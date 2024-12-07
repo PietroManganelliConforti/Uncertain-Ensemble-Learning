@@ -23,7 +23,7 @@ def get_transforms(dataset_name: str):
             transforms.ToTensor(),
             transforms.Normalize(mean, std),
         ])
-    elif dataset_name in ["imagenette", "caltech256", "caltech101"]:
+    elif dataset_name in ["imagenette", "caltech256", "caltech101", "flowers102"]:
         mean, std = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
         train_transform = transforms.Compose([
             transforms.RandomResizedCrop(224),
@@ -38,7 +38,7 @@ def get_transforms(dataset_name: str):
             transforms.Normalize(mean, std),
         ])
 
-        if dataset_name in ["caltech256", "caltech101"]:
+        if dataset_name in ["caltech256", "caltech101", "flowers102"]:
             train_transform.transforms.insert(0, transforms.Lambda(lambda img: img.convert("RGB")))
             test_transform.transforms.insert(0, transforms.Lambda(lambda img: img.convert("RGB")))
 
@@ -57,6 +57,8 @@ def get_train_and_test_loader(dataset_name: str, data_folder: str = './data', ba
         "imagenette": (datasets.Imagenette, 10),
         "caltech256": (datasets.Caltech256, 257),
         "caltech101": (datasets.Caltech101, 101),
+        "flowers102": (datasets.Flowers102, 102),
+        #"" : (None,0)
     }
 
     if dataset_name not in dataset_dict:
@@ -82,12 +84,15 @@ def get_train_and_test_loader(dataset_name: str, data_folder: str = './data', ba
         train_set = dataset_class(root=data_folder, split='train', download=download_flag, transform=train_transform)
         test_set = dataset_class(root=data_folder, split='val', download=download_flag, transform=test_transform)
         
-    elif dataset_name in ["caltech256", "caltech101"]:
+    elif dataset_name in ["caltech256", "caltech101", "flowers102"]:
         full_dataset = dataset_class(root=data_folder, download=True, transform=train_transform)
         train_size = int(0.8 * len(full_dataset))
         test_size = len(full_dataset) - train_size
         train_set, test_set = random_split(full_dataset, [train_size, test_size])
         test_set.dataset.transform = test_transform  # Applica trasformazione di test
+    
+    elif dataset_name in [""]:
+        pass
 
     # Creazione dei DataLoader
     train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers)
@@ -107,7 +112,7 @@ if __name__ == "__main__":
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") 
     print("Device:", device)
 
-    datasets_list = ["cifar10", "cifar100", "imagenette", "caltech256", "caltech101"]   
+    datasets_list = ["cifar10", "cifar100", "imagenette", "caltech256", "caltech101", "flowers102"]
 
     for dataset_name in datasets_list:
         dataset_path = './work/project/data'
