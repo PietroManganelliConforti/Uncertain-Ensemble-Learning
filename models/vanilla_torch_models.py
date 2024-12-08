@@ -3,19 +3,29 @@ import torch.nn as nn
 import sys
 import os
 
-# Add the parent directory (Uncertain-Ensemble-Learning) to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../')))
 
-# Now you can import from the loaders module in the parent directory
 from loaders import get_train_and_test_loader
 
+class ensemble_of_models(nn.Module):
+    def __init__(self, model_name, model_dict, num_classes=10, pretrained=False, n_of_models=5):
+        super(ensemble_of_models, self).__init__()
+        self.models = nn.ModuleList([model_dict[model_name](num_classes=num_classes, pretrained=pretrained) for _ in range(n_of_models)])
+        self.n_of_models = n_of_models
+        self.fc = nn.Linear(self.n_of_models * num_classes, num_classes)
+        self.__name__ = 'ensemble_of_' + model_name + '_models'
+        
+    def forward(self, x):
+        x = torch.cat([model(x) for model in self.models], dim=1)
+        x = self.fc(x)
+        return x
 
 class resnet18v(nn.Module):
     def __init__(self, num_classes=10, **kwargs):
 
         pretrained = kwargs.get('pretrained', False)
         super(resnet18v, self).__init__()
-        self.model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=pretrained)
+        self.model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=pretrained, verbose=False)
         self.model.fc = nn.Linear(512, num_classes)
 
     def forward(self, x):
@@ -26,7 +36,7 @@ class resnet34v(nn.Module):
 
         pretrained = kwargs.get('pretrained', False)
         super(resnet34v, self).__init__()
-        self.model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet34', pretrained=pretrained)
+        self.model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet34',  pretrained=pretrained, verbose=False)
         self.model.fc = nn.Linear(512, num_classes)
 
     def forward(self, x):
@@ -36,7 +46,7 @@ class resnet50v(nn.Module):
     def __init__(self, num_classes=10, **kwargs):
         pretrained = kwargs.get('pretrained', False)
         super(resnet50v, self).__init__()
-        self.model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet50', pretrained=pretrained)
+        self.model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet50',  pretrained=pretrained, verbose=False)
         self.model.fc = nn.Linear(2048, num_classes)
 
     def forward(self, x):
@@ -259,3 +269,5 @@ if __name__ == "__main__":
         for model_class in model_classes:
 
             test_model(model_class, num_classes=n_cls, trainloader=trainloader, testloader=testloader, device=device)
+
+        print(f"\n/------------------------------------  End of Dataset: {dataset_name} ------------------------------------/\n")
