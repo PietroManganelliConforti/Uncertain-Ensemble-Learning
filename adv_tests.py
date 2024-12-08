@@ -9,7 +9,7 @@ from loaders import get_train_and_test_loader
 import os
 from models import model_dict
 from attacks import fgsm_attack, pgd_attack
-
+import argparse
 
 
 def save_images(adv_images, orig_images, save_image_path):
@@ -136,14 +136,26 @@ def test_with_pgd(net, testloader, device, epsilon, alpha, num_iter, criterion, 
 
 if __name__ == "__main__":
 
+    parser = argparse.ArgumentParser(description='Test adversarial examples')  
+    
+    parser.add_argument('--dataset', type=str, default='imagenette', help='Dataset name')
+    parser.add_argument('--model', type=str, default='resnet18', help='Model name')
+    parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
+    parser.add_argument('--num_workers', type=int, default=8, help='Number of workers for dataloader')
+    parser.add_argument('--data_folder', type=str, default='./work/project/data', help='Path to dataset folder')
+    parser.add_argument('--save_model_root', type=str, default='work/project/save/', help='Path to model weights')
+    
+    args = parser.parse_args()
+
     #setup cuda
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu") 
     print("Device:", device)
 
-    dataset_name = "imagenette"
-    dataset_path = './work/project/data'
-    batch_size = 32
-    num_workers = 8
+    dataset_name = args.dataset
+    dataset_path = args.data_folder
+    batch_size = args.batch_size
+    num_workers = args.num_workers
+    save_model_root = args.save_model_root
 
     _, testloader, n_cls = get_train_and_test_loader(dataset_name, 
                                                            data_folder=dataset_path, 
@@ -155,10 +167,12 @@ if __name__ == "__main__":
 
     # import net
 
-    model_name = "resnet18"
+    model_name = "resnet18"  #save/imagenette/resnet18_0.0001_200_pretrained
     net = model_dict["resnet18"](num_classes=n_cls).to(device)
 
-    model_path = 'work/project/save/imagenette/resnet18_0.0001_200/state_dict.pth' #'work/project/save/'+dataset_name+'/'+model_name+'/state_dict.pth'
+    weights_path = model_name + "_0.0001_200_pretrained/state_dict.pth"   #REMEMBER TO CHANGE THE WEIGHTS!
+    
+    model_path = save_model_root+dataset_name+'/'+ weights_path
 
     net.load_state_dict(torch.load(model_path, map_location=device))
     net.eval().to(device)

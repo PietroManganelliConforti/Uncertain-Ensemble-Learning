@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 # from torchvision import models
-from models import model_dict
+from models import model_dict, ensemble_of_models
 import os
 import matplotlib.pyplot as plt
 from loaders import get_train_and_test_loader
@@ -139,6 +139,8 @@ def get_parser():
     parser.add_argument('--save_path', type=str, default=None, help='Path to save model and logs')
     parser.add_argument('--device', type=str, default="cuda:0", help='Device to use (cpu or cuda:0)')
     parser.add_argument('--pretrained', action='store_true', help='Load pretrained model')
+    parser.add_argument('--ensemble', action='store_true', help='Ensemble of models')
+    parser.add_argument('--n_of_models', type=int, default=3, help='Number of models to ensemble')
 
     return parser
 
@@ -149,7 +151,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
     logger = logging.getLogger()
     parser = get_parser()
-    args = parser.parse_args()
+    args = parser.parse_args()   
 
     # Setup CUDA
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
@@ -165,6 +167,8 @@ if __name__ == "__main__":
     lr = args.lr
     epochs = args.epochs
     pretrained_flag = args.pretrained
+    ensemble_flag = args.ensemble
+    n_of_models = args.n_of_models
 
 
     try:
@@ -180,9 +184,15 @@ if __name__ == "__main__":
 
 
     try:
-        net = model_dict[model_name](num_classes=n_cls, pretrained=pretrained_flag).to(device)
-        assert net is not None, "Model not found"
-        logger.info(f"Model {model_name} initialized with {n_cls} output classes.")
+        if ensemble_flag:
+            assert n_of_models > 1, "Ensemble requires at least 2 models"
+            net = ensemble_of_models(model_name=model_name, model_dict=model_dict, num_classes=n_cls, pretrained=pretrained_flag, n_of_models=n_of_models).to(device)
+            assert net is not None, "Model not found"
+            logger.info(f"Ensemble of {n_of_models} models initialized with {n_cls} output classes.")
+        else:
+            net = model_dict[model_name](num_classes=n_cls, pretrained=pretrained_flag).to(device)
+            assert net is not None, "Model not found"
+            logger.info(f"Model {model_name} initialized with {n_cls} output classes.")
     except Exception as e:
         logger.error(f"Error initializing model {model_name}: {e}")
         exit(1)
@@ -194,6 +204,10 @@ if __name__ == "__main__":
 
     #save path for model and logs
     save_path = os.path.join(save_path_root, dataset_name, model_name+"_"+str(lr)+"_"+str(epochs))
+
+    if ensemble_flag:
+        save_path = save_path + "_ensemble" + str(n_of_models)
+        
     if pretrained_flag:
         save_path = save_path + "_pretrained"
     os.makedirs(save_path, exist_ok=True)
@@ -226,10 +240,10 @@ if __name__ == "__main__":
     with open(os.path.join(save_path, "test_metrics.txt"), "w") as f:
         f.write(str(test_metrics))
         f.write("\n")
-        f.write(str(train_metrics))
-        f.write("\n")
         #write args
         f.write(str(args))
+        f.write("\n\n\n\n\n\n\n\n\n\n\n\n")
+        f.write(str(train_metrics))
         logger.info(f"Test metrics and training metrics saved to {save_path}/test_metrics.txt")
 
 

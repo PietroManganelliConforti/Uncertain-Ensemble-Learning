@@ -11,18 +11,33 @@ logger = logging.getLogger()
 
 def get_transforms(dataset_name: str):
 
+    resize_to_224 = True # Variabile per indicare se ridimensionare a 224x224
+
     if dataset_name in ["cifar10", "cifar100"]:
         mean, std = (0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)
-        train_transform = transforms.Compose([
-            transforms.RandomCrop(32, padding=4),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize(mean, std),
-        ])
-        test_transform = transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Normalize(mean, std),
-        ])
+        if resize_to_224:  # Variabile per indicare se ridimensionare a 224x224
+            train_transform = transforms.Compose([
+                transforms.Resize((224, 224)),  # Ridimensiona le immagini
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean, std),
+            ])
+            test_transform = transforms.Compose([
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
+                transforms.Normalize(mean, std),
+            ])
+        else:
+            train_transform = transforms.Compose([
+                transforms.RandomCrop(32, padding=4),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean, std),
+            ])
+            test_transform = transforms.Compose([
+                transforms.ToTensor(),
+                transforms.Normalize(mean, std),
+            ])
     elif dataset_name in ["imagenette", "caltech256", "caltech101", "flowers102"]:
         mean, std = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
         train_transform = transforms.Compose([
